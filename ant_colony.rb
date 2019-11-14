@@ -2,7 +2,6 @@
 
 require "./social_graph"
 require "./write_results"
-require "./selection_method"
 
 # (X) Ant initialization
 # ( ) Selection Method
@@ -15,10 +14,27 @@ require "./selection_method"
 #	pheromone += 1/path_length
 
 class Ant
-	def initialize(origin)
-		@path = Array.new
-		@path.push(origin)
-		@stop = False
+	def initialize(origin,graph)
+		@path = Set.new
+		@path.add(origin)
+		@stop = graph.neighbours(@path)
+	end
+
+	def create_path(node_hash,graph,cum_sum)
+#		puts @path.inspect
+		while @stop < graph.n_nodes
+			j = node_hash.keys.sample # probale new node
+			r = rand()                # "randomness control"
+
+			if r > node_hash[j]/cum_sum # probability of chosing the j node
+				@path.add(j)
+				@stop = graph.neighbours(@path)
+#				puts @stop
+#				puts @path.size
+#				puts @path.map{|x| x.to_i}.sort.inspect
+#				sleep 1
+			end
+		end
 	end
 
 	def new_node(node_hash,graph)
@@ -53,9 +69,16 @@ class AntColonyAlgorithm
 		@nodes  = Hash.new
 
 		# pheromone initialize
+		#  maybe put some heuristic (number of neighbours)
+		aux = 0
 		for i in 0..(nodes.size - 1)
-			@nodes[nodes[i]] = 1.0
+			r = rand().round(2)
+			@nodes[nodes[i]] = rand().round(2)
+			aux += r
 		end
+		@nodes_f_sum = aux # remember to atualize it
+
+#		puts @nodes
 	end
 
 	def run()
@@ -65,36 +88,29 @@ class AntColonyAlgorithm
 
 			for i in 0..(@n_ants - 1)
 				aux = @nodes.keys.sample
-				puts aux
-				ants.push(Ant.new(aux))
+				ants.push(Ant.new(aux,@graph))
 			end
 
 			# Selection method
-			paths = []
-			while ants.size > 0
-				for a in ants
-					if a.new_node(@nodes,@graph)
-						paths.push(a.path)
-						ants.delete(a)
-					end
-				end
+			for a in ants
+				a.create_path(@nodes,@graph,@nodes_f_sum)
+				puts a.path.size
 			end
 
 			# Pheromone evaportaion
 			# ;-; it's so slow
-			for i in 0..(@nodes.size - 1)
-				idx = @nodes.keys[i]
-				@nodes[idx] *= (1 - rand())
-			end
+#			for i in 0..(@nodes.size - 1)
+#				idx = @nodes.keys[i]
+#				@nodes[idx] *= (1 - rand().round(2)/100)
+#			end
 
 			# Solution quality/Pheromone atualization
-			for i in 0..(@n_ants - 1)
-#				lk = ants[i].path_lenght()
-				lk = paths[i].size
-				for idx in paths[i]
-					@nodes[idx] += 1/lk
-				end
-			end
+#			for a in ants
+#				lk = ants.path_lenght()
+#				for idx in a.path
+#					@nodes[idx] += 1/lk
+#				end
+#			end
 		end
 	end
 end
@@ -102,7 +118,7 @@ end
 END{
 #	init_file()
 	graph = SocialNetwork.new
-	puts graph.n_nodes
-	saco  = AntColonyAlgorithm.new(graph,graph.keys,50,10)
+#	puts graph.keys.map{|x| x.to_i}.sort
+	saco  = AntColonyAlgorithm.new(graph,graph.keys,2,5)
 	saco.run()
 }

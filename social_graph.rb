@@ -6,7 +6,8 @@ require "./file_to_hash"
 # Social Network Graph
 #	It will deal with operations involving directly the graph
 class SocialNetwork
-	@@graph = read_transform()
+	@@graph = edge_list_to_hash()
+#	@@graph = read_transform()
 
 	def show_graph()
 		return @@graph
@@ -26,10 +27,12 @@ class SocialNetwork
 		neigh = Set.new
 
 		for v in nodes
-			aux = Set.new @@graph[v] 
+			aux = Set.new @@graph[v]
+			neigh.add(v)
 			neigh.merge aux
 		end
 
+#		puts neigh.inspect
 		return neigh.length
 	end
 end
