@@ -10,6 +10,6 @@ This project consist in the use of the ant colony algorithm to try to solve the 
 * Atribuir uma origem para as formigas
 	- Cada formiga começa no mesmo no
 	- Cada formiga começa em um no diferente
-* Ir adicionando nos ao caminho da formiga até chegar ao objetivo (o caminho conseguir alcançar os 81306 nos do grafo)
+* Ir adicionando nos ao caminho da formiga até chegar ao objetivo (o caminho conseguir alcançar os 81306 nos do fgrafo)
 
 MVC benchmark : http://sites.nlsde.buaa.edu.cn/~kexu/benchmarks/graph-benchmarks.htm

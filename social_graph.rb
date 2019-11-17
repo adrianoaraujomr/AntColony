@@ -17,22 +17,31 @@ class SocialNetwork
 		return @@graph.keys
 	end
 
+	def neighbours_list(node)
+		@@graph[node]
+	end
+
 	# This will define when the ant will get to its objective
 	def n_nodes()
 		return @@graph.keys.size
 	end
 
+	def neighbours_2(nodes)
+		neigh = Set.new
+		for v in nodes
+			neigh.add(v)
+			neigh = neigh | @@graph[v].to_set
+		end
+		return neigh
+	end
+
 	# This will define the path length
 	def neighbours(nodes)
 		neigh = Set.new
-
 		for v in nodes
-			aux = Set.new @@graph[v]
 			neigh.add(v)
-			neigh.merge aux
+			neigh = neigh | @@graph[v].to_set
 		end
-
-#		puts neigh.inspect
 		return neigh.length
 	end
 end
