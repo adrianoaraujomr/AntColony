@@ -27,21 +27,11 @@ class Ant
 			j = @path.sample       # probale new node
 			r = rand()                  # "randomness control"
 			if r < node_hash[j]/cum_sum # probability of chosing the j node
-				@path.delete(j)
+				rm = @path.delete(j)
 				@stop = graph.neighbours(@path)
 			end
 		end
-
-		@path = @path.to_set
-		# If the last node fuck shit up
-		while @stop < graph.n_nodes
-			j = node_hash.keys.sample   # probale new node
-			r = rand()                  # "randomness control"
-			if r > node_hash[j]/cum_sum # probability of chosing the j node
-				@path.add(j)
-				@stop = graph.neighbours(@path)
-			end
-		end
+		@path.push(rm)
 	end
 
 	def create_path_crescent(node_hash,graph,cum_sum)
@@ -81,15 +71,15 @@ class AntColonyAlgorithm
 			@nodes[nodes[i]] = rand().round(2)
 			aux += r
 		end
-		@nodes_f_sum = aux # remember to atualize it
+		@nodes_f_sum = aux
 	end
 
 	def run()
 		for i in 1..@iter
-			# Ant initialization
-			puts i
-			ants = Array.new
+			puts "Iteration " + i.to_s
 
+			# Ant initialization
+			ants = Array.new
 			for i in 0..(@n_ants - 1)
 				aux = @nodes.keys.sample
 				ants.push(Ant.new(aux,@graph))
@@ -99,17 +89,18 @@ class AntColonyAlgorithm
 			#   Measure time to create path comparing the two types of creation
 			starting = Time.now
 			for a in ants
-#				a.create_path_decrescent(@nodes,@graph,@nodes_f_sum)
-				a.create_path_crescent(@nodes,@graph,@nodes_f_sum)
+			# Obs : There is no significant difference in using
+				a.create_path_decrescent(@nodes,@graph,@nodes_f_sum)
+#				a.create_path_crescent(@nodes,@graph,@nodes_f_sum)
 			end
 			ending = Time.now
-			print "Time : "
-			puts (ending - starting)
 
 			# Pheromone evaportaion
-			# ;-; it's so slow
+			#  ;-; it's so slow
+			#  seems like its decreasing too much
 			for i in @nodes.keys
-				@nodes[i] *= (1 - rand())
+#				@nodes[i] *= (1 - rand())
+				@nodes[i] *= (1 - 0.05)
 			end
 
 			# Solution quality/Pheromone atualization
@@ -126,11 +117,12 @@ class AntColonyAlgorithm
 					@nodes[idx] += 1/lk
 				end
 			end
-			puts "Media"
-			puts media/@n_ants
 
 			# Atualize the cumulative sum
 			att_nodes_f_sum
+
+			# Execution statistics
+			stats(media,ending,starting)
 		end
 		puts "\nThe Best : "
 		puts @best.inspect
@@ -145,6 +137,29 @@ class AntColonyAlgorithm
 		@nodes_f_sum = aux # remember to atualize it
 
 	end
+
+	private
+	def stats(media,ending,starting)
+		print "Media : "
+		puts media/@n_ants
+
+		print "Time : "
+		puts (ending - starting)
+
+		puts "Top 10 :"
+		top_10
+	end
+
+	def top_10()
+		i = 0
+		aux = @nodes.sort_by {|x| -1*x[1]}
+		for tupla in aux
+			puts tupla.inspect
+			i += 1
+			if i == 10; break end
+		end
+	end
+
 end
 
 END{

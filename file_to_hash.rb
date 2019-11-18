@@ -23,7 +23,7 @@ def edge_list_to_hash()
 #		puts " 1"
 	end
 
-	aux = hs.keys.map{|x| x.to_i}.sort
+#	aux = hs.keys.map{|x| x.to_i}.sort
 #	for i in aux
 #		for j in hs[i.to_s] 
 #			puts i.to_s + " " + j.to_s
