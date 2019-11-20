@@ -20,9 +20,14 @@ class Ant
 		@stop = graph.neighbours(@path)
 	end
 
+	# Star with full nodes and remove some (higher the weight less the chance of being removed)
+	#  1 - sample
+	#  2 - run sequentialy
 	def create_path_decrescent(node_hash,graph,cum_sum)
-		@path = node_hash.keys
+		@path = node_hash.keys # Array
 		@stop = graph.neighbours(@path)
+
+		# Sample
 		while @stop == graph.n_nodes
 			j = @path.sample       # probale new node
 			r = rand()                  # "randomness control"
@@ -32,8 +37,24 @@ class Ant
 			end
 		end
 		@path.push(rm)
+
+#		# Sequentialy
+#		i = 0
+#		while @stop == graph.n_nodes
+#			i = (i + 1).modulo @path.length
+#			j = @path[i]                # probale new node
+#			r = rand()                  # "randomness control"
+#			if r < node_hash[j]/cum_sum # probability of chosing the j node
+#				rm = @path.delete(j)
+#				@stop = graph.neighbours(@path)
+#			end
+#		end
+#		@path.push(rm)
 	end
 
+	# Build the path one by one
+	#  1 - sample
+	#  2 - run sequentialy
 	def create_path_crescent(node_hash,graph,cum_sum)
 		while @stop < graph.n_nodes
 			j = node_hash.keys.sample # probale new node
@@ -44,6 +65,7 @@ class Ant
 				@stop = graph.neighbours(@path)
 			end
 		end
+#		@path = @path.to_a
 	end
 
 	def path()
@@ -55,6 +77,11 @@ class Ant
 	end
 end
 
+# Get solutions to a csv format
+#	at each iteration :
+#		- the size of the path of each ant
+#		- the ranking of vertex (by probability/feromonio)
+
 class AntColonyAlgorithm
 	def initialize(graph,nodes,iterations,n_ants)
 		@best   = [0,graph.n_nodes]
@@ -62,6 +89,7 @@ class AntColonyAlgorithm
 		@iter   = iterations
 		@n_ants = n_ants
 		@nodes  = Hash.new
+		@answer = []
 
 		# Initialize pheromone
 		#  maybe put some heuristic (number of neighbours)
@@ -80,7 +108,7 @@ class AntColonyAlgorithm
 
 			# Ant initialization
 			ants = Array.new
-			for i in 0..(@n_ants - 1)
+			for j in 0..(@n_ants - 1)
 				aux = @nodes.keys.sample
 				ants.push(Ant.new(aux,@graph))
 			end
@@ -89,7 +117,7 @@ class AntColonyAlgorithm
 			#   Measure time to create path comparing the two types of creation
 			starting = Time.now
 			for a in ants
-			# Obs : There is no significant difference in using
+			# Obs : There is no significant difference in using decrescent over crescent (maybe not anymore)
 				a.create_path_decrescent(@nodes,@graph,@nodes_f_sum)
 #				a.create_path_crescent(@nodes,@graph,@nodes_f_sum)
 			end
@@ -98,34 +126,44 @@ class AntColonyAlgorithm
 			# Pheromone evaportaion
 			#  ;-; it's so slow
 			#  seems like its decreasing too much
-			for i in @nodes.keys
-#				@nodes[i] *= (1 - rand())
-				@nodes[i] *= (1 - 0.05)
+			for j in @nodes.keys
+				@nodes[j] *= (1 - rand()/8)
+#				@nodes[j] *= (1 - 0.05)
 			end
 
-			# Solution quality/Pheromone atualization
+			# Solution quality/Pheromone update
 			media = 0
+			lks   = []
 			for a in ants
 				lk = a.path_lenght()
-				media += lk
-				if lk < @best[1]
-					@best[0] = i
-					@best[1] = lk
-				end
-#				puts lk
 				for idx in a.path
 					@nodes[idx] += 1/lk
 				end
+
+			# Extra (statistics)
+				media += lk
+				lks.push(lk)
+				if lk < @best[1]
+					@best[0] = i
+					@best[1] = lk
+					@answer  = a.path # in decrescent thre return is an array (crescent is a set)
+				end
+#				puts lk
 			end
 
-			# Atualize the cumulative sum
+			# Update the cumulative sum
 			att_nodes_f_sum
 
 			# Execution statistics
 			stats(media,ending,starting)
+			# i                     = iteration
+			# lks                   = the lenght of the path of each ant
+			# @nodes + @nodes_f_sum = the "rank" of each node
+			write_stats(i,lks,@nodes,@nodes_f_sum)
 		end
 		puts "\nThe Best : "
 		puts @best.inspect
+		update_file()
 	end
 
 	private
@@ -163,7 +201,7 @@ class AntColonyAlgorithm
 end
 
 END{
-#	init_file()
+	init_file()
 	graph = SocialNetwork.new
 #	puts graph.keys.map{|x| x.to_i}.sort
 	saco  = AntColonyAlgorithm.new(graph,graph.keys,100,20)

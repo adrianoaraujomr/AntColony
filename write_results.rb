@@ -1,15 +1,10 @@
 #!/usr/bin/ruby -w
 
-#END {
-#	init_file
-#	update_file
-#}
-
 $test_nro   = 0
 $file_name  = "./Results/results_"
 
 def init_file()
-	fd = File.open("./test_nro.txt","r")
+	fd = File.open("./Results/test_nro.txt","r")
 	$test_nro  = fd.read.strip
 	$file_name = $file_name + $test_nro + ".csv"  
 	fd.close
@@ -22,21 +17,22 @@ def update_file()
 	fd.close
 end
 
-def write_parameters(params)
-	fd = File.open($file_name,"w+")
-	fd.write(params)
-	fd.write("\n")
-	fd.close
-end
+# Remember to remove the file if youre not going to wait the algorithm finish
+def write_stats(iter,path_sizes,nodes_hash,cum_sum)
+	fd = File.open($file_name,"a+")
 
-def write_fitness(i,fitness)
-	fd = File.open($file_name,"a")
-	
-	fd.write(i.to_s + ";")
-	for i in fitness
-		fd.write(i)
-		fd.write(";")
+	fd.write("LK;" + iter.to_s + ";") # odd lines path lenghts of each iteration
+	for lk in path_sizes
+		fd.write(lk.to_s + ";")
 	end
 	fd.write("\n")
-	fd.close
+
+	fd.write("PK;" + iter.to_s + ";") # odd lines path lenghts of each iteration
+	for j in nodes_hash.keys
+		pk = nodes_hash[j]/cum_sum
+		fd.write(pk.to_s + ";")
+	end
+	fd.write("\n")
+
+	fd.close()
 end
