@@ -1,0 +1,4 @@
+1 : decrescent sequential sample (020)
+2 : decrescent random sample     (020)
+3 : decrescent sequential sample (100)
+4 : decrescent random sample     (100)

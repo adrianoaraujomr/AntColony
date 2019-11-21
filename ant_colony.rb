@@ -23,10 +23,9 @@ class Ant
 	# Star with full nodes and remove some (higher the weight less the chance of being removed)
 	#  1 - sample
 	#  2 - run sequentialy
-	def create_path_decrescent(node_hash,graph,cum_sum)
+	def create_path_decrescent_rnd(node_hash,graph,cum_sum)
 		@path = node_hash.keys # Array
 		@stop = graph.neighbours(@path)
-
 		# Sample
 		while @stop == graph.n_nodes
 			j = @path.sample       # probale new node
@@ -38,18 +37,22 @@ class Ant
 		end
 		@path.push(rm)
 
-#		# Sequentialy
-#		i = 0
-#		while @stop == graph.n_nodes
-#			i = (i + 1).modulo @path.length
-#			j = @path[i]                # probale new node
-#			r = rand()                  # "randomness control"
-#			if r < node_hash[j]/cum_sum # probability of chosing the j node
-#				rm = @path.delete(j)
-#				@stop = graph.neighbours(@path)
-#			end
-#		end
-#		@path.push(rm)
+	end
+	def create_path_decrescent_seq(node_hash,graph,cum_sum)
+		@path = node_hash.keys # Array
+		@stop = graph.neighbours(@path)
+		# Sequentialy
+		i = 0
+		while @stop == graph.n_nodes
+			i = (i + 1).modulo @path.length
+			j = @path[i]                # probale new node
+			r = rand()                  # "randomness control"
+			if r < node_hash[j]/cum_sum # probability of chosing the j node
+				rm = @path.delete(j)
+				@stop = graph.neighbours(@path)
+			end
+		end
+		@path.push(rm)
 	end
 
 	# Build the path one by one
@@ -118,7 +121,8 @@ class AntColonyAlgorithm
 			starting = Time.now
 			for a in ants
 			# Obs : There is no significant difference in using decrescent over crescent (maybe not anymore)
-				a.create_path_decrescent(@nodes,@graph,@nodes_f_sum)
+#				a.create_path_decrescent_seq(@nodes,@graph,@nodes_f_sum)
+				a.create_path_decrescent_rnd(@nodes,@graph,@nodes_f_sum)
 #				a.create_path_crescent(@nodes,@graph,@nodes_f_sum)
 			end
 			ending = Time.now
@@ -204,6 +208,6 @@ END{
 	init_file()
 	graph = SocialNetwork.new
 #	puts graph.keys.map{|x| x.to_i}.sort
-	saco  = AntColonyAlgorithm.new(graph,graph.keys,100,20)
+	saco  = AntColonyAlgorithm.new(graph,graph.keys,100,100)
 	saco.run()
 }
