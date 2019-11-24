@@ -1,4 +1,17 @@
-1 : decrescent sequential sample (020)
-2 : decrescent random sample     (020)
-3 : decrescent sequential sample (100)
-4 : decrescent random sample     (100)
+# Ants 
+
+#1 : decrescent sequential sample (020)
+#2 : decrescent random sample     (020)
+#3 : decrescent sequential sample (100)
+5 : decrescent sequential no evaporation
+6 : decrescent random     no evaporation
+7 : decrescent sequential no evaporation alfa 3
+7 : decrescent sequential no evaporation alfa 7
+7 : decrescent sequential no evaporation heuristc
+8 : decrescent random     no evaporation heuristc
+
+# Genetic
+# 13
+
+1 : the best result of the last problem
+2 : changed fitness function to not multiobjective
