@@ -23,14 +23,14 @@ class Ant
 	# Star with full nodes and remove some (higher the weight less the chance of being removed)
 	#  1 - sample
 	#  2 - run sequentialy
-	def create_path_decrescent_rnd(node_hash,graph,cum_sum,alfa,beta)
+	def create_path_decrescent_rnd(node_hash,heuristics,graph,cum_sum,alfa,beta)
 		@path = node_hash.keys # Array
 		@stop = graph.neighbours(@path)
 		# Sample
 		while @stop == graph.n_nodes
 			j = @path.sample       # probale new node
 			r = rand()                  # "randomness control"
-			if r < (node_hash[j]**alfa)/cum_sum # probability of chosing the j node
+			if r < ((node_hash[j]**alfa)*(heuristics[j]**beta))/cum_sum # probability of chosing the j node
 				rm = @path.delete(j)
 				@stop = graph.neighbours(@path)
 			end
@@ -38,7 +38,7 @@ class Ant
 		@path.push(rm)
 
 	end
-	def create_path_decrescent_seq(node_hash,graph,cum_sum,alfa,beta)
+	def create_path_decrescent_seq(node_hash,heuristics,graph,cum_sum,alfa,beta)
 		@path = node_hash.keys # Array
 		@stop = graph.neighbours(@path)
 		# Sequentialy
@@ -47,7 +47,7 @@ class Ant
 			i = (i + 1).modulo @path.length
 			j = @path[i]                # probale new node
 			r = rand()                  # "randomness control"
-			if r < (node_hash[j]**alfa)/cum_sum # probability of chosing the j node
+			if r < ((node_hash[j]**alfa)*(heuristics[j]**beta))/cum_sum # probability of chosing the j node
 				rm = @path.delete(j)
 				@stop = graph.neighbours(@path)
 			end
@@ -94,6 +94,7 @@ class AntColonyAlgorithm
 		@iter   = iterations
 		@n_ants = n_ants
 		@nodes  = Hash.new
+		@heuri  = Hash.new
 		@answer = []
 
 		# Initialize pheromone
@@ -101,11 +102,11 @@ class AntColonyAlgorithm
 		aux = 0
 		for i in 0..(nodes.size - 1)
 			r = rand()
-#			h = (1.0 - (1.0/graph.neighbours_list(nodes[i]).size))
-#			@nodes[nodes[i]] = [r,h]
-			@nodes[nodes[i]] = r
-#			aux += (r**@alfa) * (h**@beta)
-			aux += r**@alfa
+			h = (1.0 - (1.0/graph.neighbours_list(nodes[i]).size))
+#			@nodes[nodes[i]] = r
+			@heuri[nodes[i]] = h
+			aux += (r**@alfa) * (h**@beta)
+#			aux += (r**@alfa)
 		end
 		@nodes_f_sum = aux
 	end
@@ -124,7 +125,7 @@ class AntColonyAlgorithm
 			# Selection method
 			starting = Time.now
 			for a in ants
-				a.create_path_decrescent_seq(@nodes,@graph,@nodes_f_sum,@alfa,@beta)
+				a.create_path_decrescent_seq(@nodes,@heuri,@graph,@nodes_f_sum,@alfa,@beta)
 #				a.create_path_decrescent_rnd(@nodes,@graph,@nodes_f_sum,@alfa,@beta)
 #				a.create_path_crescent(@nodes,@graph,@nodes_f_sum,@alfa,@beta)
 			end
