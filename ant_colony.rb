@@ -3,16 +3,6 @@
 require "./social_graph"
 require "./write_results"
 
-# (X) Ant initialization
-# (X) Selection Method
-#	Node selection probabilite
-# (X) Solution quality
-#	path_length (the smaller the better)
-# (X) Pheromone evaporation
-#	pheromone *= (1 - rand)
-# (X) Pheromone atualization
-#	pheromone += 1/path_length
-
 class Ant
 	def initialize(origin,graph)
 		@path = Set.new
@@ -31,7 +21,7 @@ class Ant
 			j = @path.sample       # probale new node
 			r = rand()                  # "randomness control"
 #			if r < ((node_hash[j]**alfa)*(heuristics[j]**beta))/cum_sum # probability of chosing the j node
-			if r < ((node_hash[j]**alfa))/cum_sum
+			if r > ((node_hash[j]**alfa))/cum_sum
 				rm = @path.delete(j)
 				@stop = graph.neighbours(@path)
 			end
@@ -39,6 +29,7 @@ class Ant
 		@path.push(rm)
 
 	end
+	
 	def create_path_decrescent_seq(node_hash,heuristics,graph,cum_sum,alfa,beta)
 		@path = node_hash.keys # Array
 		@stop = graph.neighbours(@path)
@@ -88,7 +79,7 @@ end
 
 class AntColonyAlgorithm
 	def initialize(graph,nodes,iterations,n_ants)
-		@alfa   = 3
+		@alfa   = 1
 		@beta   = 3
 		@best   = [0,graph.n_nodes]
 		@graph  = graph
@@ -104,12 +95,13 @@ class AntColonyAlgorithm
 		for i in 0..(nodes.size - 1)
 			r = rand()
 			h = (1.0 - (1.0/graph.neighbours_list(nodes[i]).size))
-#			@nodes[nodes[i]] = 0.5
-			@nodes[nodes[i]] = r
+			@nodes[nodes[i]] = 0.5
+#			@nodes[nodes[i]] = r
 			@heuri[nodes[i]] = h
+
 #			aux += (r**@alfa) * (h**@beta)
-#			aux += (0.5**@alfa)
-			aux += (r**@alfa)
+			aux += (0.5**@alfa)
+#			aux += (r**@alfa)
 		end
 		@nodes_f_sum = aux
 	end
@@ -163,7 +155,7 @@ class AntColonyAlgorithm
 			att_nodes_f_sum
 
 			# Execution statistics
-			stats(media,ending,starting)
+#			stats(media,ending,starting)
 
 			# i                     = iteration
 			# lks                   = the lenght of the path of each ant
@@ -213,6 +205,9 @@ end
 END{
 	init_file()
 	graph = SocialNetwork.new
-	saco  = AntColonyAlgorithm.new(graph,graph.keys,1000,100)
+	puts graph.keys.inspect
+	saco  = AntColonyAlgorithm.new(graph,graph.keys,5000,100)
 	saco.run()
+	puts graph.keys.inspect
+     puts graph.show_graph
 }
