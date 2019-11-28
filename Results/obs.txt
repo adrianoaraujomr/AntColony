@@ -9,9 +9,22 @@
 7 : decrescent sequential no evaporation alfa 7
 7 : decrescent sequential no evaporation heuristc
 8 : decrescent random     no evaporation heuristc
+9 : dec rand same weight no alfa    # change this
+10: dec rand same weight witth alfa # change this
 
 # Genetic
 # 13
-
 1 : the best result of the last problem
 2 : changed fitness function to not multiobjective
+
+# Smaller graph
+
+12: dec rand same weight alfa
+13: dec rand rand weight alfa
+
+
+# Ideia projeto 04
+
+# Fazer um busca local antes de colocar feromonio
+	# Cruzamento
+	# Tentar compensar o lento desenvolviimento do algortimo

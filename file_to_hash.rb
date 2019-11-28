@@ -1,12 +1,13 @@
 #!/usr/bin/ruby -w
 
-END {
-	edge_list_to_hash()
-}
+#END {
+#	edge_list_to_hash()
+#}
 
 def edge_list_to_hash()
 	hs = Hash.new
-	fd = File.new("./Graphs/benchmark_graph_1.txt","r")
+#	fd = File.new("./Graphs/graph_1.txt","r")
+	fd = File.new("./Graphs/graph_2.txt","r")
 
 	while (line = fd.gets)
 		edge        = line.split(" ")

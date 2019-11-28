@@ -25,7 +25,7 @@ def plot_graphs(fn,nodes,flwrs):
 	fig = plt.figure()
 
 	plt.subplot(2,1,1)
-	plt.plot(gen,nodes)
+	plt.plot(gen,nodes,'o', color='black')
 	plt.title('Path sizes')
 
 	gen = range(0,len(flwrs))

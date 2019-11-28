@@ -30,7 +30,8 @@ class Ant
 		while @stop == graph.n_nodes
 			j = @path.sample       # probale new node
 			r = rand()                  # "randomness control"
-			if r < ((node_hash[j]**alfa)*(heuristics[j]**beta))/cum_sum # probability of chosing the j node
+#			if r < ((node_hash[j]**alfa)*(heuristics[j]**beta))/cum_sum # probability of chosing the j node
+			if r < ((node_hash[j]**alfa))/cum_sum
 				rm = @path.delete(j)
 				@stop = graph.neighbours(@path)
 			end
@@ -87,7 +88,7 @@ end
 
 class AntColonyAlgorithm
 	def initialize(graph,nodes,iterations,n_ants)
-		@alfa   = 7
+		@alfa   = 3
 		@beta   = 3
 		@best   = [0,graph.n_nodes]
 		@graph  = graph
@@ -103,10 +104,12 @@ class AntColonyAlgorithm
 		for i in 0..(nodes.size - 1)
 			r = rand()
 			h = (1.0 - (1.0/graph.neighbours_list(nodes[i]).size))
-#			@nodes[nodes[i]] = r
+#			@nodes[nodes[i]] = 0.5
+			@nodes[nodes[i]] = r
 			@heuri[nodes[i]] = h
-			aux += (r**@alfa) * (h**@beta)
-#			aux += (r**@alfa)
+#			aux += (r**@alfa) * (h**@beta)
+#			aux += (0.5**@alfa)
+			aux += (r**@alfa)
 		end
 		@nodes_f_sum = aux
 	end
@@ -125,8 +128,8 @@ class AntColonyAlgorithm
 			# Selection method
 			starting = Time.now
 			for a in ants
-				a.create_path_decrescent_seq(@nodes,@heuri,@graph,@nodes_f_sum,@alfa,@beta)
-#				a.create_path_decrescent_rnd(@nodes,@graph,@nodes_f_sum,@alfa,@beta)
+#				a.create_path_decrescent_seq(@nodes,@heuri,@graph,@nodes_f_sum,@alfa,@beta)
+				a.create_path_decrescent_rnd(@nodes,@heuri,@graph,@nodes_f_sum,@alfa,@beta)
 #				a.create_path_crescent(@nodes,@graph,@nodes_f_sum,@alfa,@beta)
 			end
 			ending = Time.now
@@ -143,7 +146,6 @@ class AntColonyAlgorithm
 			for a in ants
 				lk = a.path_lenght()
 				for idx in a.path
-#					@nodes[idx][0] += (1.0/lk)
 					@nodes[idx] += (1.0/lk)
 				end
 
@@ -211,6 +213,6 @@ end
 END{
 	init_file()
 	graph = SocialNetwork.new
-	saco  = AntColonyAlgorithm.new(graph,graph.keys,1000,20)
+	saco  = AntColonyAlgorithm.new(graph,graph.keys,1000,100)
 	saco.run()
 }
